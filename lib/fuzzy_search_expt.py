@@ -3,7 +3,7 @@ import re, random
 #nlp = spacy.load('en')
 import csv
 
-#todo:shall we cleanup the word? we can handle multiple words with it
+#todo:shall we cleanup the word? we can handle multiple words with this
 #def spacy_tokenize(text):
 #    return [token.text for token in nlp.tokenizer(text)]
 
@@ -65,9 +65,6 @@ class MyFuzzySearch:
         #todo: here when a word from corpus comes, it increases f, we can directly set f since our corpus has unique words + f
         #todo: corrections get f = 0 if its added newly to dict, it doesnt change if already there, f is replaced by f from corpus if added later.
         #todo:
-        #todo: why only deletes and no edits of a word?
-        #todo: we wont return new_real_word_added, our case no return
-        #todo:
         new_real_word_added = False
         if w in self.dictionary:
             # increment count of word in corpus
@@ -78,7 +75,11 @@ class MyFuzzySearch:
 
         #add corrections only for popular words, we need to set a threshold to consider popular ones
         #todo: try bottom_15 avg
-        if self.dictionary[w][1] > 100059294:
+
+        #1000th ~ 80000000
+        #100000000
+        #trying to limit memory below 2~3gb
+        if self.dictionary[w][1] > 100000000:
             deletes = self.get_deletes_list(w)
             for item in deletes:
                 if item in self.dictionary:
@@ -96,6 +97,20 @@ class MyFuzzySearch:
                 self.create_dictionary_entry(row[0], row[1])
 
         #todo: also analyse and find common and rare thresholds
+        # as_list = self.dictionary.items()
+        # #print as_list[0:5]
+        # outlist = sorted(as_list,
+        #                  key=lambda x:
+        #                  (int(x[1][1])),
+        #                  reverse=True)
+        #
+        # #print outlist[0:1000]
+        # words_over_zero = list(filter(lambda x: int(x[1][1]) > 100, outlist))
+        #
+        # print 'words_over_zero' + str(len(words_over_zero))
+        # results = [int(x[1][1]) for x in words_over_zero]
+
+        #todo: use stats rather than using magic numbers
         self.threshold_deduct = 1000000
         self.threshold_add = 100000000
         return self.dictionary
@@ -114,7 +129,6 @@ class MyFuzzySearch:
         while len(queue) > 0:
             item_from_queue = queue[0]
             queue = queue[1:]
-            #todo: if length of word is over length of a word in dict by 2, such words are not compared?
             #todo: if the word type is misspelt, its in our dict, but its f will be 0 or low.
             #todo: generally a misspelt word will likely match a delete of a real word or atleast lies close to it.
             #todo: so we can get away from keeping substitutions of a read word in dict!
@@ -189,6 +203,7 @@ class MyFuzzySearch:
 
         # return (possible_word, (fs, lev_distance)):
         as_list = possible_words_dict.items()
+        #we give give priority to words that are closer, words that start with string and words that contain string.
         outlist = sorted(as_list,
                          key=lambda x:
                          (int(x[1][0]) - (abs(x[1][1]) * self.threshold_deduct) +
@@ -221,9 +236,9 @@ if __name__ == '__main__':
     #print fs.dictionary['environ']
     #print fs.dictionary['environme']
     #tokens = spacy_tokenize(sample_text)
-    test_word = 'arch'
+    #test_word = 'arch'
     #test_word = 'environ'
-    print('getting results...')
-    print(fs.autocomplete_search(test_word)[0:50])
+    #print('getting results...')
+    #print(fs.autocomplete_search(test_word)[0:50])
 
     print('results provided')
