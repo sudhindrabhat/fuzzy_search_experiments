@@ -2,7 +2,6 @@ import os
 from app.handlers.base import BaseHandler
 from app.handlers.handlers import SearchHandler, HttpNotFoundHandler
 
-
 import tornado.ioloop
 import tornado.options
 import tornado.web

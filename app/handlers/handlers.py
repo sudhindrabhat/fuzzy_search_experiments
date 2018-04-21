@@ -6,7 +6,7 @@ import re
 from tornado.web import HTTPError
 from app.exception.customexceptions import InvalidInput, InternalError
 from app.handlers.base import BaseHandler
-from app.model.user import UserModel
+from app.model.search_data import SearchModel
 from app.view.templates.json.base import JsonView
 from lib.fuzzy_search_expt import MyFuzzySearch
 from debug_config import Config
