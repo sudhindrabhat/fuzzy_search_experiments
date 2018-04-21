@@ -19,7 +19,7 @@ class SearchHandler(BaseHandler):
         query = self.get_argument('query', '')
         if not query:
             raise InvalidInput('query cannot be empty')
-        view = JsonView({'api_access_key': self.fuzzy_search.test_access, 'query':query}).render()
+        view = JsonView({'api_access_key': self.fuzzy_search.autocomplete_search(query), 'query':query}).render()
         self.finish(view)
 
 class GetApiAccessKeyHandler(BaseHandler):
