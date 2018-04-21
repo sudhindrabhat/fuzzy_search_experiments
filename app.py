@@ -21,7 +21,7 @@ class Application(tornado.web.Application):
             url(r'/search', SearchHandler),
             url(r'/(.*)', HttpNotFoundHandler)
         ]
-        print 'init fuzzy'
+
         fuzzy_search = MyFuzzySearch(fname=Config.fname, max_lev_distance=2)
 
         settings = {

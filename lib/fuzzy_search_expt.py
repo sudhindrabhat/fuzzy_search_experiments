@@ -35,7 +35,7 @@ class MyFuzzySearch:
         self.dictionary = {}
         self.longest_word_length = 0
         self.test_access = 'MyFuzzySearch!!!'
-        #self.create_dictionary(fname)
+        self.create_dictionary(fname)
 
     def get_deletes_list(self, w):
         """For a given w, get strings with up to max_lev_distance characters deleted in it"""
