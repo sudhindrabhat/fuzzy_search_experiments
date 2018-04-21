@@ -12,7 +12,7 @@ from tornado.web import url
 from lib.fuzzy_search_expt import MyFuzzySearch
 from debug_config import Config
 
-define("port", default=80, type=int)
+define("port", default=8080, type=int)
 
 
 class Application(tornado.web.Application):
