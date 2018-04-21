@@ -3,7 +3,7 @@ import tornado
 from tornado.web import RequestHandler
 
 from app.exception.customexceptions import InternalError, ApiAccessDenied, SessionExpired
-from app.model.user import UserModel
+from app.model.search_data import SearchModel
 from app.view.templates.json.base import JsonView
 
 
