@@ -30,10 +30,12 @@ def dameraulevenshtein(seq1, seq2):
 
 
 class MyFuzzySearch:
-    def __init__(self, max_lev_distance=3):
+    def __init__(self, fname, max_lev_distance=3):
         self.max_lev_distance = max_lev_distance
         self.dictionary = {}
         self.longest_word_length = 0
+        self.test_access = 'MyFuzzySearch!!!'
+        #self.create_dictionary(fname)
 
     def get_deletes_list(self, w):
         """For a given w, get strings with up to max_lev_distance characters deleted in it"""
@@ -211,11 +213,11 @@ if __name__ == '__main__':
     # results = [x[0] for x in outlist[0:5]]
     # print results
 
-    fs = MyFuzzySearch(max_lev_distance=2)
+    fs = MyFuzzySearch('/Users/sudhi/Downloads/word_search.tsv', max_lev_distance=2)
     #print dameraulevenshtein('environ', 'environment')
     #print dameraulevenshtein('environment', 'environ')
     #fs.create_dictionary('/home/ec2-user/word_search.tsv')
-    fs.create_dictionary('/Users/sudhi/Downloads/word_search.tsv')
+    #fs.create_dictionary('/Users/sudhi/Downloads/word_search.tsv')
     #print fs.dictionary['environ']
     #print fs.dictionary['environme']
     #tokens = spacy_tokenize(sample_text)

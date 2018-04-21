@@ -13,17 +13,13 @@ from debug_config import Config
 
 class SearchHandler(BaseHandler):
     def initialize(self):
-        #todo: maybe init it in model?
-        #self.fuzzy_search = MyFuzzySearch(max_lev_distance=2)
-        #self.fuzzy_search.create_dictionary(Config.fname)
-        print 'init!!!!!!!!!!'
-        self.fuzzy_search = 'hello world'
+        self.fuzzy_search = self.settings.fuzzy_search
 
     def get(self, *args, **kwargs):
         query = self.get_argument('query', '')
         if not query:
             raise InvalidInput('query cannot be empty')
-        view = JsonView({'api_access_key': self.fuzzy_search, 'query':query}).render()
+        view = JsonView({'api_access_key': self.fuzzy_search.test_access, 'query':query}).render()
         self.finish(view)
 
 class GetApiAccessKeyHandler(BaseHandler):

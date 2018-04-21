@@ -9,6 +9,9 @@ import tornado.httpserver
 from tornado.options import define, options
 from tornado.web import url
 
+from lib.fuzzy_search_expt import MyFuzzySearch
+from debug_config import Config
+
 define("port", default=8888, type=int)
 
 
@@ -19,11 +22,14 @@ class Application(tornado.web.Application):
             url(r'/(.*)', HttpNotFoundHandler)
         ]
 
+        fuzzy_search = MyFuzzySearch(fname=Config.fname, max_lev_distance=2)
+
         settings = {
             'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
             'xsrf_cookies': False,
             'debug': True,
             'log_file_prefix': "tornado.log",
+            'fuzzy_search': fuzzy_search
         }
 
         tornado.web.Application.__init__(self, handlers, **settings)
