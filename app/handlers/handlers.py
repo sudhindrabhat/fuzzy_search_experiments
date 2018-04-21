@@ -13,6 +13,7 @@ from debug_config import Config
 
 class SearchHandler(BaseHandler):
     def initialize(self):
+        print self.settings.keys()
         self.fuzzy_search = self.settings.fuzzy_search
 
     def get(self, *args, **kwargs):
