@@ -21,6 +21,8 @@ class SearchHandler(BaseHandler):
 
     def get(self, *args, **kwargs):
         query = self.get_argument('query', '')
+        if not query:
+            raise InvalidInput('query cannot be empty')
         view = JsonView({'api_access_key': self.fuzzy_search, 'query':query}).render()
         self.finish(view)
 
