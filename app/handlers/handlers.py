@@ -12,13 +12,14 @@ from lib.fuzzy_search_expt import MyFuzzySearch
 from debug_config import Config
 
 class SearchHandler(BaseHandler):
-    def initialize(self, fname):
+    def initialize(self):
         #todo: maybe init it in model?
-        self.fuzzy_search = MyFuzzySearch(max_lev_distance=2)
-        self.fuzzy_search.create_dictionary(Config.fname)
+        #self.fuzzy_search = MyFuzzySearch(max_lev_distance=2)
+        #self.fuzzy_search.create_dictionary(Config.fname)
+        self.fuzzy_search = 'hello world'
 
     def get(self, *args, **kwargs):
-        view = JsonView({'api_access_key': 'abcd'}).render()
+        view = JsonView({'api_access_key': self.fuzzy_search}).render()
         self.finish(view)
 
 class GetApiAccessKeyHandler(BaseHandler):
