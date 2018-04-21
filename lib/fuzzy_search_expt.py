@@ -199,9 +199,8 @@ class MyFuzzySearch:
     def autocomplete_search(self, word):
         results = []
         possible_words = self.get_possible_words(word)
-        #todo: any sorting could be done here
-        results = possible_words
-        #results = [x[0] for x in possible_words[0:25]]
+        #results = possible_words
+        results = [x[0] for x in possible_words[0:25]]
         return results
 
 if __name__ == '__main__':

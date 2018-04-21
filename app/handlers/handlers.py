@@ -16,10 +16,12 @@ class SearchHandler(BaseHandler):
         #todo: maybe init it in model?
         #self.fuzzy_search = MyFuzzySearch(max_lev_distance=2)
         #self.fuzzy_search.create_dictionary(Config.fname)
+        print 'init!!!!!!!!!!'
         self.fuzzy_search = 'hello world'
 
     def get(self, *args, **kwargs):
-        view = JsonView({'api_access_key': self.fuzzy_search}).render()
+        query = self.get_argument('query', '')
+        view = JsonView({'api_access_key': self.fuzzy_search, 'query':query}).render()
         self.finish(view)
 
 class GetApiAccessKeyHandler(BaseHandler):
