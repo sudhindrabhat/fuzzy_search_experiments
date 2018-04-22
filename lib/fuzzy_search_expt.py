@@ -227,7 +227,7 @@ if __name__ == '__main__':
     # outlist = sorted(as_list, key=lambda x: (int(x[1][0]) - (abs(x[1][1]) * threshold_deduct) + (int(x[1][2]) * threshold_add)), reverse=True)
     # results = [x[0] for x in outlist[0:5]]
     # print results
-
+    #todo: use timeit and profile
     fs = MyFuzzySearch('/Users/sudhi/Downloads/word_search.tsv', max_lev_distance=2)
     #print dameraulevenshtein('environ', 'environment')
     #print dameraulevenshtein('environment', 'environ')
