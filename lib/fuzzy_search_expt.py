@@ -284,8 +284,8 @@ class MyFuzzySearch:
     def autocomplete_search(self, word):
         results = []
         possible_words = self.get_possible_words(word)
-        results = possible_words
-        #results = [x[0] for x in possible_words[0:25]]
+        #results = possible_words
+        results = [x[0] for x in possible_words[0:25]]
         return results
 
 if __name__ == '__main__':
@@ -297,7 +297,7 @@ if __name__ == '__main__':
     # print results
     #todo: use timeit and profile
     fs = MyFuzzySearch('/Users/sudhi/Downloads/word_search.tsv', max_lev_distance=2)
-    
+
     #print dameraulevenshtein('environment', 'environ')
     #fs.create_dictionary('/home/ec2-user/word_search.tsv')
     #fs.create_dictionary('/Users/sudhi/Downloads/word_search.tsv')
