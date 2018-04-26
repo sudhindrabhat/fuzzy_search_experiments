@@ -49,11 +49,13 @@ class MyFuzzySearch:
 
         return substrings
 
-    def get_deletes_list(self, w):
+    def get_deletes_list(self, w, max_lev_distance=None):
         """For a given w, get strings with up to max_lev_distance characters deleted in it"""
+        if max_lev_distance is None:
+            max_lev_distance = self.max_lev_distance
         words_from_delete = []
         queue = [w]
-        for del_count in range(self.max_lev_distance):
+        for del_count in range(max_lev_distance):
             temp_queue = []
             for word in queue:
                 if len(word) > 1:
@@ -103,8 +105,17 @@ class MyFuzzySearch:
             #we make this in another function, so can use different popularity threshold
             #we should reverse substrings list so its easier to add the smaller substrings into larger ones
             substrings = self.get_substrings(w)
+            #todo: we should take 1 lev_dis deletions of substrings and index them as well?
             self.add_words_to_dictionary(substrings, w)
             self.create_substring_map(list(reversed(substrings)))
+            self.map_substring_deletes(list(reversed(substrings)))
+
+
+    def map_substring_deletes(self, substrings):
+        for substring in substrings:
+            deletes = self.get_deletes_list(substring, 1)
+            self.add_words_to_dictionary(deletes, substring)
+
 
     #words are substrings that are sorted in reverse order of length
     def create_substring_map(self, words):
@@ -117,6 +128,7 @@ class MyFuzzySearch:
 
     def add_a_word_to_dictionary(self, item, word):
         if item in self.dictionary:
+            #todo: if word is in dict and it points to few more, should we not add them up to item as well?
             # add (correct) word to delete's suggested correction list
             self.dictionary[item][0].append(word)
         else:
@@ -150,7 +162,7 @@ class MyFuzzySearch:
         # results = [int(x[1][1]) for x in words_over_zero]
 
         #todo: use stats rather than using magic numbers
-        self.threshold_deduct = 1000000
+        self.threshold_deduct = 100000
         self.threshold_add = 100000000
         return self.dictionary
 
@@ -164,7 +176,7 @@ class MyFuzzySearch:
 
         queue = [string]
         processed_words = {}
-
+        lev_lim = 1 #self.max_lev_distance
         while len(queue) > 0:
             item_from_queue = queue[0]
             queue = queue[1:]
@@ -182,24 +194,28 @@ class MyFuzzySearch:
 
             if (item_from_queue in self.dictionary):
                 #todo: make it greater than a threshold!
+                #todo: does this makes sense, a substring with 0 value can have a real word!
+                queue_item_dist = abs(dameraulevenshtein(item_from_queue, string))
                 if self.dictionary[item_from_queue][1] > 0:
                     if len(item_from_queue) < (len(string)-2) and len(item_from_queue) <= 3:
                         continue
-                    item_dist = dameraulevenshtein(item_from_queue, string)
-                    if string not in item_from_queue and abs(item_dist) >= len(item_from_queue)-1:
+
+                    if string not in item_from_queue and abs(queue_item_dist) >= len(item_from_queue)-1:
                         continue
-                    possible_words_map[item_from_queue] = (self.dictionary[item_from_queue][1],
+
+                    if item_from_queue != string:
+                        possible_words_map[item_from_queue] = (self.dictionary[item_from_queue][1],
                                             len(string) - len(item_from_queue), string in item_from_queue, item_from_queue.startswith(string))
 
-                    if (len(string) - len(item_from_queue)) < min_suggest_len:
-                        min_suggest_len = len(string) - len(item_from_queue)
+                        if (len(string) - len(item_from_queue)) < min_suggest_len:
+                            min_suggest_len = len(string) - len(item_from_queue)
 
                 #todo if sc_item is not popular, add it to queue so that we could find something popular from it
                 #if written word is substring, dont care about lev_dist
 
                 for matched_item in self.dictionary[item_from_queue][0]:
-                    if matched_item not in possible_words_map:
-                        #not interested in shorter possibilities
+                    if matched_item not in possible_words_map.keys():
+                        #todo: not interested in shorter possibilities, but what about equal?
                         if len(matched_item) <= len(item_from_queue):
                             continue
 
@@ -208,16 +224,22 @@ class MyFuzzySearch:
                             continue
 
                         # calculate Damerau-Levenshtein distance
-                        item_dist = dameraulevenshtein(matched_item, string)
+                        item_dist = abs(dameraulevenshtein(matched_item, string))
 
-                        if item_dist <= self.max_lev_distance or string in matched_item:
+
+                        #todo: match with one distance correction too, so that its derivatives get shown
+
+                        if item_dist <= lev_lim or string in matched_item or (queue_item_dist <= 1 and item_from_queue in matched_item):
                             if matched_item not in self.dictionary:
                                 continue
+
                             if len(matched_item) < (len(string)-2) and len(matched_item) <= 3:
                                 continue
 
-                            if string not in matched_item and abs(item_dist) >= len(matched_item)-1:
+                            if string not in matched_item and item_from_queue not in matched_item and abs(item_dist) >= len(matched_item)-1:
                                 continue
+
+                            #todo: maybe we need to provide some ranking if correction is in matched item?
                             possible_words_map[matched_item] = (self.dictionary[matched_item][1], item_dist, string in matched_item, matched_item.startswith(string))
                             if item_dist < min_suggest_len:
                                 min_suggest_len = item_dist
@@ -231,10 +253,13 @@ class MyFuzzySearch:
             if len(string) < len(item_from_queue):
                 continue
 
+            #lev_lim = 1 #self.max_lev_distance
+
             if (len(string) - len(item_from_queue)) < self.max_lev_distance and len(item_from_queue) > 1:
                 for c in range(len(item_from_queue)):  # character index
                     word_without_c = '%s%s' % (item_from_queue[:c], item_from_queue[c + 1:])
                     if word_without_c not in processed_words:
+                        #todo: add to queue only if lev_dis of word_without_c is close to string?
                         queue.append(word_without_c)
                         processed_words[word_without_c] = None
 
@@ -243,12 +268,14 @@ class MyFuzzySearch:
         #possible_as_list = [x for x in as_list if x[1][0] > 0]
         #todo: dont even add these into possible_words_map!
         as_list = [x for x in possible_words_map.items() if x[1][0] > 0 and len(x[0]) >= len(string)]
-
+        #as_list = [x for x in possible_words_map.items() if len(x[0]) >= len(string)]
         #we give give priority to words that are closer, words that start with string and words that contain string.
+
+        #todo: if the word is not a substring and differs by more than a character, it should be penalised more!
         outlist = sorted(as_list,
                          key=lambda x:
                          (int(x[1][0]) - (abs(x[1][1]) * self.threshold_deduct) +
-                         (int(x[1][2]) * self.threshold_add) + (int(x[1][3]) * 2 * self.threshold_add)),
+                         (int(x[1][2]) * self.threshold_add * 2) + (int(x[1][3]) * 4 * self.threshold_add)),
                          reverse=True)
 
         return outlist
@@ -270,7 +297,7 @@ if __name__ == '__main__':
     # print results
     #todo: use timeit and profile
     fs = MyFuzzySearch('/Users/sudhi/Downloads/word_search.tsv', max_lev_distance=2)
-    #print dameraulevenshtein('environ', 'environment')
+    
     #print dameraulevenshtein('environment', 'environ')
     #fs.create_dictionary('/home/ec2-user/word_search.tsv')
     #fs.create_dictionary('/Users/sudhi/Downloads/word_search.tsv')
@@ -278,11 +305,15 @@ if __name__ == '__main__':
     #print fs.dictionary['environme']
     #tokens = spacy_tokenize(sample_text)
     #test_word = 'arch'
+    #print fs.dictionary['procrast']
     #test_word = 'environ'
     test_word = 'procrst'
     #we could run through our db for few iterations to complete the mapping of substrings
     #these wont help with correction but help more with completion
     print('getting results...')
     print(fs.autocomplete_search(test_word)[0:50])
+    print(fs.autocomplete_search('environ')[0:50])
+    print(fs.autocomplete_search('arch')[0:50])
+    print(fs.autocomplete_search('procrast')[0:50])
 
     print('results provided')
